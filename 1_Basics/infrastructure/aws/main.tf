@@ -1,7 +1,10 @@
 provider "aws" {
-  region = var.region
+  region  = var.region
   profile = var.profile
 }
+
+# Fetch available AWS AZs
+data "aws_availability_zones" "available" {}
 
 # Create VPC
 resource "aws_vpc" "eks_vpc" {
@@ -19,6 +22,7 @@ resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.eks_vpc.id
   cidr_block              = var.public_subnets[count.index]
   map_public_ip_on_launch = true
+  availability_zone       = data.aws_availability_zones.available.names[count.index]
 }
 
 # Allocate Elastic IP for NAT Gateway (using first public subnet)
@@ -34,9 +38,10 @@ resource "aws_nat_gateway" "nat_gw" {
 
 # Create Private Subnets
 resource "aws_subnet" "private" {
-  count      = length(var.private_subnets)
-  vpc_id     = aws_vpc.eks_vpc.id
-  cidr_block = var.private_subnets[count.index]
+  count             = length(var.private_subnets)
+  vpc_id            = aws_vpc.eks_vpc.id
+  cidr_block        = var.private_subnets[count.index]
+  availability_zone = data.aws_availability_zones.available.names[count.index]
 }
 
 # Public Route Table with Internet Gateway

@@ -1,0 +1,19 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: eks-cluster
+  region: ap-southeast-1
+vpc:
+  subnets:
+    public:
+      # Replace <public_subnet_ids> with the Terraform output for public_subnet_ids
+      - id: "<public_subnet_id_1>"
+      - id: "<public_subnet_id_2>"
+    private:
+      # Replace <private_subnet_ids> with the Terraform output for private_subnet_ids
+      - id: "<private_subnet_id_1>"
+      - id: "<private_subnet_id_2>"
+nodeGroups:
+  - name: ng-1
+    instanceType: t3.medium
+    desiredCapacity: 2
